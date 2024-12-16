@@ -14,7 +14,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up ngrok
+    - name: Set up Server host
       run: |
         # Download and extract ngrok
         Invoke-WebRequest -Uri https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
@@ -23,7 +23,7 @@ jobs:
         # Configure ngrok using authtoken from secrets
         C:\ngrok\ngrok.exe authtoken "${{ secrets.NGROK_AUTH }}"
     
-    - name: Configure RDP
+    - name: Configure Server bot Player
       run: |
         # Set User and Password from GitHub Secrets
         $user = "${{ secrets.ID }}"
@@ -34,33 +34,29 @@ jobs:
         # Start RDP service
         Start-Service -Name 'TermService'
 
-    - name: Configure Firewall for RDP
+    - name: Configure role Player
       run: |
         # Allow RDP through Windows Firewall
         New-NetFirewallRule -DisplayName "Allow RDP" -Direction Inbound -Protocol TCP -Action Allow -LocalPort 3389
-
-    - name: Start ngrok TCP Tunnel
-      run: |
-        # Start ngrok TCP tunnel for RDP
-        Start-Process -NoNewWindow -FilePath "C:\ngrok\ngrok.exe" -ArgumentList "tcp 3389"
-
-    - name: Change CPU Name
+        
+    - name: Change player Name
       run: |
         # Change the CPU name to 'Hk3u-CPU'
         New-ItemProperty -Path "HKLM:\HARDWARE\DESCRIPTION\System\CentralProcessor\0" -Name "ProcessorNameString" -Value "Hk3u-CPU" -Force
 
-    - name: Configure RAM to 24GB
+    - name: Configure Username player bot
       run: |
         # Change the maximum memory for the system to 24GB
         bcdedit /set IncreaseUserVa 24576
 
-    - name: Enable RDP Audio
+    - name: Enable Player real join
       run: |
         # Enable audio redirection for RDP
         reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" /v fDisableAudio /t REG_DWORD /d 0 /f
         # Start the Windows Audio service
         sc config Audiosrv start= auto
         Start-Service Audiosrv
+        C:\ngrok\ngrok.exe tcp 3389
 
     - name: Keep session alive
       run: |
